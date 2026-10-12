@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ESP32-S3 贾维斯 · USB 烧录</title>
+  <style>
+    :root{font-family:ui-sans-serif,system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;color:#e8edf7;background:#0b1220}
+    *{box-sizing:border-box}body{margin:0}main{max-width:880px;margin:auto;padding:38px 20px 80px}h1{font-size:clamp(28px,5vw,44px);margin:0 0 8px}h2{font-size:20px;margin:0 0 16px}p{line-height:1.65;color:#bcc9dc}a{color:#75d7ff}small{color:#9eabc0}.eyebrow{color:#72d1ca;letter-spacing:.15em;font-size:12px;font-weight:800}.lead{font-size:17px}.card{background:#111c30;border:1px solid #2a3c56;border-radius:18px;padding:24px;margin:20px 0;box-shadow:0 12px 38px #050b1740}.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.stat{background:#17253c;border-radius:12px;padding:15px}.stat b{display:block;font-size:14px;margin-bottom:4px}.stat span{font-size:13px;color:#a8b6ca}.step{display:flex;align-items:center;gap:12px;margin-bottom:16px}.num{width:30px;height:30px;border-radius:50%;background:#184e58;color:#a8fff6;display:grid;place-items:center;font-weight:800;flex:none}.row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}.button,button{border:0;border-radius:10px;background:#56c9bf;color:#06151a;padding:12px 17px;font:inherit;font-weight:750;cursor:pointer}.button{display:inline-block;text-decoration:none}.button.secondary,button.secondary{background:#263a56;color:#e8edf7}button:disabled{opacity:.45;cursor:not-allowed}input[type=file]{width:100%;border:1px dashed #54718b;border-radius:12px;padding:16px;background:#0d1728;color:#e8edf7}label.check{display:flex;gap:10px;align-items:flex-start;margin:14px 0;color:#d8e3f1;line-height:1.5}label.check input{margin-top:5px;flex:none}.warn{padding:13px 16px;background:#3b291d;border:1px solid #9e683c;color:#ffe2c5;border-radius:10px;margin-top:16px;line-height:1.5}.ok{color:#8ef3d1}.bad{color:#ffb29e}progress{width:100%;height:16px;accent-color:#56c9bf;margin:14px 0}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#09111e;border:1px solid #2b3f58;border-radius:12px;padding:16px;height:220px;overflow:auto;color:#a7c5db;font-size:12px}footer{color:#8799b1;font-size:13px;line-height:1.6;margin-top:30px}@media(max-width:600px){.grid{grid-template-columns:1fr}.card{padding:18px}}
+  </style>
+</head>
+<body><main>
+  <div class="eyebrow">LCKFB · ESP32-S3 · WEB SERIAL</div>
+  <h1>贾维斯 USB 烧录台</h1>
+  <p class="lead">为立创实战派 ESP32-S3 N16R8 准备。固件和备份文件只在浏览器与本机串口之间处理；页面不连接小智后台。</p>
+
+  <section class="card"><h2>目标硬件</h2><div class="grid">
+    <div class="stat"><b>芯片与存储</b><span>ESP32-S3 WROOM-1 · 16 MB Flash · 8 MB PSRAM</span></div>
+    <div class="stat"><b>外设</b><span>240×320 触屏 · GC0308 摄像头 · ES8311 音频</span></div>
+  </div><p>仅支持这块板。USB 口可能通过 CH343 或原生 USB 枚举；请选择连接开发板的串口。建议使用 Chrome 或 Edge 的 HTTPS 页面，或本机 localhost。</p></section>
+
+  <section class="card"><div class="step"><span class="num">1</span><h2>准备固件</h2></div>
+    <p>下载上游 v2.5.2 的 <strong>lckfb-lichuang-dev</strong> 包，解压后选择其中的 <code>merged-binary.bin</code>。自行编译的合并镜像也可选择；刷写前会检查芯片和分区。</p>
+    <p class="row"><a class="button secondary" href="https://github.com/78/xiaozhi-esp32/releases/download/v2.5.2/v2.5.2_lckfb-lichuang-dev.zip" target="_blank" rel="noopener">下载官方板型固件 ZIP</a><a href="https://github.com/78/xiaozhi-esp32/releases/tag/v2.5.2" target="_blank" rel="noopener">查看发布说明</a></p>
+    <input id="firmware" type="file" accept=".bin,application/octet-stream" aria-label="选择合并固件 bin 文件">
+    <div id="fileInfo"><small>尚未选择文件。</small></div>
+    <label class="check"><input id="custom" type="checkbox">这是我自行编译的 ESP32-S3 合并镜像；我已核对板型、引脚、分区和 Flash 容量。</label>
+  </section>
+
+  <section class="card"><div class="step"><span class="num">2</span><h2>连接与备份</h2></div>
+    <p>先连接串口，核对芯片、Flash 容量，并读取当前分区表。备份前 64 KB（含分区表及常见 NVS 区域）后才能刷写。备份文件仅保存在你的电脑上，可能包含 Wi‑Fi 等敏感配置，请妥善保管。</p>
+    <div class="row"><button id="connect">连接开发板</button><button id="backup" class="secondary" disabled>下载配置备份</button><button id="disconnect" class="secondary" disabled>断开</button></div>
+    <p id="deviceInfo">未连接。</p>
+    <label class="check"><input id="savedBackup" type="checkbox" disabled>我已确认备份文件保存在本机。</label>
+  </section>
+
+  <section class="card"><div class="step"><span class="num">3</span><h2>刷写</h2></div>
+    <div id="modeInfo" class="warn">连接并选择固件后，页面会比较设备与固件的分区表。</div>
+    <label class="check"><input id="boardConfirmed" type="checkbox">我确认设备是图片所示的立创实战派 N16R8 板，固件对应这块板。</label>
+    <label class="check" id="fullLabel" hidden><input id="allowFull" type="checkbox">当前分区表不同意保留 NVS；我同意全量刷写后可能需要重新配网，并已保存备份。</label>
+    <button id="flash" disabled>开始 USB 烧录</button>
+    <progress id="progress" max="100" value="0"></progress><div id="progressText">等待开始</div>
+  </section>
+
+  <section class="card"><h2>运行日志</h2><pre id="log" aria-live="polite"></pre></section>
+  <footer>本工具基于 <a href="https://github.com/espressif/esptool-js" target="_blank" rel="noopener">乐鑫 esptool-js</a>。页面不会调用 xiaozhi.me 的管理接口。小智官方后台里的智能体设置不因本页操作而修改；全量刷写可能清除设备本地 Wi‑Fi 等数据。没有实体板接入时，软件只能完成页面与镜像校验，无法替代硬件实测。</footer>
+</main>
+<script src="vendor/esptool-js.bundle.js"></script>
+<script>
+(() => {
+  'use strict';
+  const OFFICIAL_SHA = 'bbc8a4f222eddec8322649852f9aad929c62f28420483e30a637e6d978660886';
+  const FLASH_BYTES = 16 * 1024 * 1024;
+  const PART_OFFSET = 0x8000, PART_SIZE = 0x1000, NVS_START = 0x9000, NVS_END = 0xd000;
+  const $ = id => document.getElementById(id);
+  const ui = Object.fromEntries(['firmware','fileInfo','custom','connect','backup','disconnect','deviceInfo','savedBackup','modeInfo','boardConfirmed','fullLabel','allowFull','flash','progress','progressText','log'].map(id => [id,$(id)]));
+  let image = null, official = false, transport = null, loader = null, tableMatches = false, preflightDone = false, backupDone = false, busy = false;
+  const append = message => { ui.log.textContent += `${new Date().toLocaleTimeString()}  ${message}\n`; ui.log.scrollTop = ui.log.scrollHeight; };
+  const fail = error => { append(`错误：${error?.message || String(error)}`); ui.progressText.textContent = `失败：${error?.message || String(error)}`; };
+  const same = (a,b) => a.length === b.length && a.every((x,i) => x === b[i]);
+  const hex = bytes => [...bytes].map(x => x.toString(16).padStart(2,'0')).join('');
+  const setBusy = value => { busy=value; updateButtons(); };
+  function updateButtons() {
+    const serialOK = 'serial' in navigator && window.isSecureContext && !!window.esptool;
+    ui.connect.disabled = busy || !!loader || !serialOK;
+    ui.backup.disabled = busy || !loader || !preflightDone;
+    ui.disconnect.disabled = busy || !loader;
+    ui.savedBackup.disabled = !backupDone;
+    ui.flash.disabled = busy || !loader || !image || !preflightDone || !backupDone || !ui.savedBackup.checked || !ui.boardConfirmed.checked || (!official && !ui.custom.checked) || (!tableMatches && !ui.allowFull.checked);
+    ui.fullLabel.hidden = !preflightDone || tableMatches;
+  }
+  async function hash(bytes) { return hex(new Uint8Array(await crypto.subtle.digest('SHA-256', bytes))); }
+  async function prepareFile() {
+    image = null; official = false; preflightDone = false; backupDone = false; ui.savedBackup.checked = false; ui.allowFull.checked = false; ui.progress.value=0; ui.fileInfo.textContent='正在校验镜像…'; updateButtons();
+    const file = ui.firmware.files?.[0]; if (!file) { ui.fileInfo.textContent='尚未选择文件。'; return; }
+    try {
+      const data = new Uint8Array(await file.arrayBuffer());
+      if (data.length < 0x20000 || data.length > FLASH_BYTES || data[0] !== 0xe9 || data[0x20000] !== 0xe9) throw new Error('不是有效的 ESP32-S3 合并镜像，或超过 16 MB Flash。');
+      const digest = await hash(data);
+      official = digest === OFFICIAL_SHA;
+      image = data;
+      ui.fileInfo.replaceChildren();
+      const verdict=document.createElement('p'); verdict.className=official ? 'ok':'bad'; verdict.textContent=official ? '✓ 与官方 v2.5.2 立创实战派镜像完全一致。':'自定义镜像：未匹配官方 SHA-256，需确认板型。';
+      const details=document.createElement('small'); details.textContent=`${file.name} · ${(data.length/1024/1024).toFixed(2)} MB · SHA-256 ${digest}`;
+      ui.fileInfo.append(verdict,details);
+      append(`已载入 ${file.name}；SHA-256 ${digest}`);
+      if (loader) await checkPartitions();
+    } catch (error) { ui.fileInfo.textContent=error.message; fail(error); }
+    updateButtons();
+  }
+  async function checkPartitions() {
+    if (!loader || !image) return;
+    preflightDone=false; updateButtons();
+    const current = await loader.readFlash(PART_OFFSET, PART_SIZE);
+    const proposed = image.subarray(PART_OFFSET, PART_OFFSET + PART_SIZE);
+    tableMatches = same(current, proposed);
+    preflightDone=true;
+    ui.modeInfo.textContent = tableMatches
+      ? '分区表完全一致：刷写时跳过 0x9000–0xCFFF 的 NVS 区域，保留设备本地配置。仍需先备份。'
+      : '分区表不同：无法安全跳过旧配置区。只允许在备份后全量刷写；本地 Wi‑Fi 等设置可能需要重新配置。云端后台不会被本页修改。';
+    append(tableMatches ? '分区表一致，可保留 NVS。' : '分区表不同，需全量刷写确认。');
+    updateButtons();
+  }
+  async function connect() {
+    if (!('serial' in navigator) || !window.isSecureContext) { fail(new Error('请在 Chrome/Edge 的 HTTPS 页面或 localhost 打开。')); return; }
+    if (!window.esptool) { fail(new Error('esptool-js 未加载，请检查网络后刷新页面。')); return; }
+    setBusy(true);
+    try {
+      const port = await navigator.serial.requestPort();
+      transport = new window.esptool.Transport(port, true);
+      loader = new window.esptool.ESPLoader({transport, baudrate:460800, terminal:{clean(){},writeLine:append,write:append}});
+      const chip = await loader.main();
+      if (!/ESP32-S3/i.test(chip)) throw new Error(`检测到 ${chip}，需要 ESP32-S3。`);
+      const flashSize = await loader.detectFlashSize();
+      if (flashSize !== '16MB') throw new Error(`检测到 Flash ${flashSize || '未知'}，目标板应为 16MB。`);
+      ui.deviceInfo.textContent = `${chip} · Flash ${flashSize} · 串口已连接`;
+      append(`连接成功：${chip}，Flash ${flashSize}`);
+      if (image) await checkPartitions();
+    } catch(error) { fail(error); if (transport) { try { await transport.disconnect(); } catch {} } loader=null; transport=null; }
+    finally { setBusy(false); }
+  }
+  async function backup() {
+    if (!loader) return; setBusy(true);
+    try {
+      const bytes = await loader.readFlash(0,0x10000,(_packet,done,total)=>{ui.progress.value=done/total*100;ui.progressText.textContent=`备份 ${(done/total*100).toFixed(0)}%`;});
+      const url=URL.createObjectURL(new Blob([bytes],{type:'application/octet-stream'}));
+      const a=document.createElement('a'); a.href=url; a.download=`esp32s3-first-64k-backup-${new Date().toISOString().replace(/[:.]/g,'-')}.bin`; a.click();
+      setTimeout(()=>URL.revokeObjectURL(url),60000);
+      backupDone=true; ui.progress.value=100; ui.progressText.textContent='备份下载已触发，请确认文件已保存。'; append('前 64 KB 备份下载已触发。');
+    } catch(error) { fail(error); }
+    finally { setBusy(false); }
+  }
+  async function flash() {
+    updateButtons(); if (ui.flash.disabled) return;
+    setBusy(true); ui.progress.value=0; ui.progressText.textContent='正在刷写，请勿拔线…';
+    try {
+      // Recheck just before writing; a reconnect or different file must not bypass the guard.
+      await checkPartitions();
+      if (!tableMatches && !ui.allowFull.checked) throw new Error('分区不一致，未同意全量刷写。');
+      const parts = tableMatches
+        ? [{data:image.subarray(0,NVS_START),address:0},{data:image.subarray(NVS_END),address:NVS_END}]
+        : [{data:image,address:0}];
+      const total=parts.reduce((n,p)=>n+p.data.length,0); let completed=0;
+      await loader.writeFlash({fileArray:parts,flashMode:'keep',flashFreq:'keep',flashSize:'16MB',eraseAll:false,compress:false,
+        reportProgress:(index,written,size)=>{const pct=(completed+written)/total*100;ui.progress.value=pct;ui.progressText.textContent=`烧录 ${pct.toFixed(1)}%`;if(written>=size) completed=parts.slice(0,index+1).reduce((n,p)=>n+p.data.length,0);}});
+      await loader.after('hard_reset');
+      ui.progress.value=100; ui.progressText.textContent='刷写完成，设备已重启。'; append('刷写完成，设备已重启。');
+    } catch(error) { fail(error); }
+    finally { setBusy(false); }
+  }
+  async function disconnect() { setBusy(true); try { await transport?.disconnect(); } catch(error) { fail(error); } loader=null;transport=null;preflightDone=false;backupDone=false;ui.savedBackup.checked=false;ui.deviceInfo.textContent='未连接。';setBusy(false); }
+  ui.firmware.addEventListener('change',prepareFile); ui.custom.addEventListener('change',updateButtons); ui.savedBackup.addEventListener('change',updateButtons); ui.boardConfirmed.addEventListener('change',updateButtons); ui.allowFull.addEventListener('change',updateButtons);
+  ui.connect.addEventListener('click',connect);ui.backup.addEventListener('click',backup);ui.flash.addEventListener('click',flash);ui.disconnect.addEventListener('click',disconnect);
+  if (!('serial' in navigator) || !window.isSecureContext) append('当前浏览器或页面环境不支持 Web Serial。请使用 Chrome/Edge 和 HTTPS/localhost。');
+  updateButtons();
+})();
+</script>
+</body></html>
