@@ -45,10 +45,11 @@
   <section class="card"><h2>运行日志</h2><pre id="log" aria-live="polite"></pre></section>
   <footer>本工具基于 <a href="https://github.com/espressif/esptool-js" target="_blank" rel="noopener">乐鑫 esptool-js</a>。页面不会调用 xiaozhi.me 的管理接口。小智官方后台里的智能体设置不因本页操作而修改；全量刷写可能清除设备本地 Wi‑Fi 等数据。没有实体板接入时，软件只能完成页面与镜像校验，无法替代硬件实测。</footer>
 </main>
-<script src="vendor/esptool-js.bundle.js"></script>
-<script>
+<script type="module">
+import {ESPLoader, Transport} from './vendor/esptool-js.bundle.js';
 (() => {
   'use strict';
+  const esptool = {ESPLoader, Transport};
   const OFFICIAL_SHA = 'bbc8a4f222eddec8322649852f9aad929c62f28420483e30a637e6d978660886';
   const FLASH_BYTES = 16 * 1024 * 1024;
   const PART_OFFSET = 0x8000, PART_SIZE = 0x1000, NVS_START = 0x9000, NVS_END = 0xd000;
@@ -61,7 +62,7 @@
   const hex = bytes => [...bytes].map(x => x.toString(16).padStart(2,'0')).join('');
   const setBusy = value => { busy=value; updateButtons(); };
   function updateButtons() {
-    const serialOK = 'serial' in navigator && window.isSecureContext && !!window.esptool;
+    const serialOK = 'serial' in navigator && window.isSecureContext;
     ui.connect.disabled = busy || !!loader || !serialOK;
     ui.backup.disabled = busy || !loader || !preflightDone;
     ui.disconnect.disabled = busy || !loader;
@@ -103,12 +104,11 @@
   }
   async function connect() {
     if (!('serial' in navigator) || !window.isSecureContext) { fail(new Error('请在 Chrome/Edge 的 HTTPS 页面或 localhost 打开。')); return; }
-    if (!window.esptool) { fail(new Error('esptool-js 未加载，请检查网络后刷新页面。')); return; }
     setBusy(true);
     try {
       const port = await navigator.serial.requestPort();
-      transport = new window.esptool.Transport(port, true);
-      loader = new window.esptool.ESPLoader({transport, baudrate:460800, terminal:{clean(){},writeLine:append,write:append}});
+      transport = new esptool.Transport(port, true);
+      loader = new esptool.ESPLoader({transport, baudrate:460800, terminal:{clean(){},writeLine:append,write:append}});
       const chip = await loader.main();
       if (!/ESP32-S3/i.test(chip)) throw new Error(`检测到 ${chip}，需要 ESP32-S3。`);
       const flashSize = await loader.detectFlashSize();
