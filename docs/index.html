@@ -13,6 +13,7 @@
   <div class="eyebrow">LCKFB · ESP32-S3 · WEB SERIAL</div>
   <h1>贾维斯 USB 烧录台</h1>
   <p class="lead">为立创实战派 ESP32-S3 N16R8 准备。固件和备份文件只在浏览器与本机串口之间处理；页面不连接小智后台。</p>
+  <div id="compat" class="warn" role="status">正在检查浏览器的 USB 串口支持…</div>
 
   <section class="card"><h2>目标硬件</h2><div class="grid">
     <div class="stat"><b>芯片与存储</b><span>ESP32-S3 WROOM-1 · 16 MB Flash · 8 MB PSRAM</span></div>
@@ -31,6 +32,7 @@
     <p>先连接串口，核对芯片、Flash 容量，并读取当前分区表。备份前 64 KB（含分区表及常见 NVS 区域）后才能刷写。备份文件仅保存在你的电脑上，可能包含 Wi‑Fi 等敏感配置，请妥善保管。</p>
     <div class="row"><button id="connect">连接开发板</button><button id="backup" class="secondary" disabled>下载配置备份</button><button id="disconnect" class="secondary" disabled>断开</button></div>
     <p id="deviceInfo">未连接。</p>
+    <details><summary>串口未出现或连接失败？</summary><p>在电脑上的 Chrome 或 Edge 中直接打开本页 HTTPS 地址。使用能传数据的 USB 线，关闭占用串口的串口监视器与其他烧录页；若串口已出现但握手失败，尝试按住开发板 BOOT 键，点一下 RESET 后松开 BOOT，再重新连接。也可以参考<a href="https://fw.gtai-tech.com/" target="_blank" rel="noopener">光钛在线烧录工具的连接说明</a>。</p></details>
     <label class="check"><input id="savedBackup" type="checkbox" disabled>我已确认备份文件保存在本机。</label>
   </section>
 
@@ -54,16 +56,26 @@ import {ESPLoader, Transport} from './vendor/esptool-js.bundle.js';
   const FLASH_BYTES = 16 * 1024 * 1024;
   const PART_OFFSET = 0x8000, PART_SIZE = 0x1000, NVS_START = 0x9000, NVS_END = 0xd000;
   const $ = id => document.getElementById(id);
-  const ui = Object.fromEntries(['firmware','fileInfo','custom','connect','backup','disconnect','deviceInfo','savedBackup','modeInfo','boardConfirmed','fullLabel','allowFull','flash','progress','progressText','log'].map(id => [id,$(id)]));
+  const ui = Object.fromEntries(['compat','firmware','fileInfo','custom','connect','backup','disconnect','deviceInfo','savedBackup','modeInfo','boardConfirmed','fullLabel','allowFull','flash','progress','progressText','log'].map(id => [id,$(id)]));
   let image = null, official = false, transport = null, loader = null, tableMatches = false, preflightDone = false, backupDone = false, busy = false;
   const append = message => { ui.log.textContent += `${new Date().toLocaleTimeString()}  ${message}\n`; ui.log.scrollTop = ui.log.scrollHeight; };
   const fail = error => { append(`错误：${error?.message || String(error)}`); ui.progressText.textContent = `失败：${error?.message || String(error)}`; };
   const same = (a,b) => a.length === b.length && a.every((x,i) => x === b[i]);
   const hex = bytes => [...bytes].map(x => x.toString(16).padStart(2,'0')).join('');
+  const serialAvailable = () => window.isSecureContext && typeof navigator.serial?.requestPort === 'function';
+  function showCompatibility() {
+    if (!window.isSecureContext) {
+      ui.compat.textContent = '当前页面不是安全上下文。请在电脑浏览器中直接打开 https://yunloong-y.github.io/ESP32S3-Jarvis/ 。';
+    } else if (!serialAvailable()) {
+      ui.compat.textContent = '当前浏览器或内置预览页没有开放 Web Serial，因此无法弹出 USB 串口列表。请复制本页地址，在电脑 Chrome 或 Edge 中直接打开；Firefox 也需要支持并启用 Web Serial 的版本。';
+    } else {
+      ui.compat.className = 'ok';
+      ui.compat.textContent = '✓ 浏览器支持 Web Serial。接好 USB 数据线后，点击“连接开发板”选择串口。';
+    }
+  }
   const setBusy = value => { busy=value; updateButtons(); };
   function updateButtons() {
-    const serialOK = 'serial' in navigator && window.isSecureContext;
-    ui.connect.disabled = busy || !!loader || !serialOK;
+    ui.connect.disabled = busy || !!loader;
     ui.backup.disabled = busy || !loader || !preflightDone;
     ui.disconnect.disabled = busy || !loader;
     ui.savedBackup.disabled = !backupDone;
@@ -103,7 +115,10 @@ import {ESPLoader, Transport} from './vendor/esptool-js.bundle.js';
     updateButtons();
   }
   async function connect() {
-    if (!('serial' in navigator) || !window.isSecureContext) { fail(new Error('请在 Chrome/Edge 的 HTTPS 页面或 localhost 打开。')); return; }
+    if (!serialAvailable()) {
+      const error = new Error('当前浏览器没有 Web Serial 串口权限。请在电脑 Chrome/Edge 中直接打开本页 HTTPS 地址，然后重试。');
+      ui.deviceInfo.textContent = error.message; fail(error); return;
+    }
     setBusy(true);
     try {
       const port = await navigator.serial.requestPort();
@@ -116,7 +131,14 @@ import {ESPLoader, Transport} from './vendor/esptool-js.bundle.js';
       ui.deviceInfo.textContent = `${chip} · Flash ${flashSize} · 串口已连接`;
       append(`连接成功：${chip}，Flash ${flashSize}`);
       if (image) await checkPartitions();
-    } catch(error) { fail(error); if (transport) { try { await transport.disconnect(); } catch {} } loader=null; transport=null; }
+    } catch(error) {
+      const detail = error?.name === 'SecurityError' ? '浏览器阻止了串口权限。请不要在内置预览页打开，并检查浏览器的站点权限。'
+        : error?.name === 'NotFoundError' ? '没有选中串口。请检查 USB 数据线和系统串口列表后重试。'
+        : error?.message || String(error);
+      ui.deviceInfo.textContent = `连接失败：${detail}`;
+      fail(new Error(detail));
+      if (transport) { try { await transport.disconnect(); } catch {} } loader=null; transport=null;
+    }
     finally { setBusy(false); }
   }
   async function backup() {
@@ -151,7 +173,8 @@ import {ESPLoader, Transport} from './vendor/esptool-js.bundle.js';
   async function disconnect() { setBusy(true); try { await transport?.disconnect(); } catch(error) { fail(error); } loader=null;transport=null;preflightDone=false;backupDone=false;ui.savedBackup.checked=false;ui.deviceInfo.textContent='未连接。';setBusy(false); }
   ui.firmware.addEventListener('change',prepareFile); ui.custom.addEventListener('change',updateButtons); ui.savedBackup.addEventListener('change',updateButtons); ui.boardConfirmed.addEventListener('change',updateButtons); ui.allowFull.addEventListener('change',updateButtons);
   ui.connect.addEventListener('click',connect);ui.backup.addEventListener('click',backup);ui.flash.addEventListener('click',flash);ui.disconnect.addEventListener('click',disconnect);
-  if (!('serial' in navigator) || !window.isSecureContext) append('当前浏览器或页面环境不支持 Web Serial。请使用 Chrome/Edge 和 HTTPS/localhost。');
+  showCompatibility();
+  if (!serialAvailable()) append('当前浏览器没有开放 Web Serial；请在桌面 Chrome/Edge 中直接打开 HTTPS 页面。');
   updateButtons();
 })();
 </script>
