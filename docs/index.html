@@ -6,7 +6,7 @@
   <title>ESP32-S3 贾维斯 · USB 烧录</title>
   <style>
     :root{font-family:ui-sans-serif,system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;color:#e8edf7;background:#0b1220}
-    *{box-sizing:border-box}[hidden]{display:none!important}body{margin:0}main{max-width:880px;margin:auto;padding:38px 20px 80px}h1{font-size:clamp(28px,5vw,44px);margin:0 0 8px}h2{font-size:20px;margin:0 0 16px}p{line-height:1.65;color:#bcc9dc}a{color:#75d7ff}small{color:#9eabc0}.eyebrow{color:#72d1ca;letter-spacing:.15em;font-size:12px;font-weight:800}.lead{font-size:17px}.card{background:#111c30;border:1px solid #2a3c56;border-radius:18px;padding:24px;margin:20px 0;box-shadow:0 12px 38px #050b1740}.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.stat{background:#17253c;border-radius:12px;padding:15px}.stat b{display:block;font-size:14px;margin-bottom:4px}.stat span{font-size:13px;color:#a8b6ca}.step{display:flex;align-items:center;gap:12px;margin-bottom:16px}.num{width:30px;height:30px;border-radius:50%;background:#184e58;color:#a8fff6;display:grid;place-items:center;font-weight:800;flex:none}.row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}.button,button{border:0;border-radius:10px;background:#56c9bf;color:#06151a;padding:12px 17px;font:inherit;font-weight:750;cursor:pointer}.button{display:inline-block;text-decoration:none}.button.secondary,button.secondary{background:#263a56;color:#e8edf7}button:disabled{opacity:.45;cursor:not-allowed}input[type=file]{width:100%;border:1px dashed #54718b;border-radius:12px;padding:16px;background:#0d1728;color:#e8edf7}label.check{display:flex;gap:10px;align-items:flex-start;margin:14px 0;color:#d8e3f1;line-height:1.5}label.check input{margin-top:5px;flex:none}.warn{padding:13px 16px;background:#3b291d;border:1px solid #9e683c;color:#ffe2c5;border-radius:10px;margin-top:16px;line-height:1.5}.ok{color:#8ef3d1}.bad{color:#ffb29e}progress{width:100%;height:16px;accent-color:#56c9bf;margin:14px 0}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#09111e;border:1px solid #2b3f58;border-radius:12px;padding:16px;height:220px;overflow:auto;color:#a7c5db;font-size:12px}footer{color:#8799b1;font-size:13px;line-height:1.6;margin-top:30px}@media(max-width:600px){.grid{grid-template-columns:1fr}.card{padding:18px}}
+    *{box-sizing:border-box}[hidden]{display:none!important}body{margin:0}main{max-width:880px;margin:auto;padding:38px 20px 80px}h1{font-size:clamp(28px,5vw,44px);margin:0 0 8px}h2{font-size:20px;margin:0 0 16px}p{line-height:1.65;color:#bcc9dc}a{color:#75d7ff}small{color:#9eabc0}.eyebrow{color:#72d1ca;letter-spacing:.15em;font-size:12px;font-weight:800}.lead{font-size:17px}.card{background:#111c30;border:1px solid #2a3c56;border-radius:18px;padding:24px;margin:20px 0;box-shadow:0 12px 38px #050b1740}.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.stat{background:#17253c;border-radius:12px;padding:15px}.stat b{display:block;font-size:14px;margin-bottom:4px}.stat span{font-size:13px;color:#a8b6ca}.step{display:flex;align-items:center;gap:12px;margin-bottom:16px}.num{width:30px;height:30px;border-radius:50%;background:#184e58;color:#a8fff6;display:grid;place-items:center;font-weight:800;flex:none}.row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}.button,button{border:0;border-radius:10px;background:#56c9bf;color:#06151a;padding:12px 17px;font:inherit;font-weight:750;cursor:pointer}.button{display:inline-block;text-decoration:none}.button.secondary,button.secondary{background:#263a56;color:#e8edf7}button:disabled{opacity:.45;cursor:not-allowed}select{display:block;width:100%;max-width:390px;margin:9px 0 17px;padding:10px 12px;border:1px solid #54718b;border-radius:10px;background:#0d1728;color:#e8edf7;font:inherit}input[type=file]{width:100%;border:1px dashed #54718b;border-radius:12px;padding:16px;background:#0d1728;color:#e8edf7}label.check{display:flex;gap:10px;align-items:flex-start;margin:14px 0;color:#d8e3f1;line-height:1.5}label.check input{margin-top:5px;flex:none}.warn{padding:13px 16px;background:#3b291d;border:1px solid #9e683c;color:#ffe2c5;border-radius:10px;margin-top:16px;line-height:1.5}.ok{color:#8ef3d1}.bad{color:#ffb29e}progress{width:100%;height:16px;accent-color:#56c9bf;margin:14px 0}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#09111e;border:1px solid #2b3f58;border-radius:12px;padding:16px;height:220px;overflow:auto;color:#a7c5db;font-size:12px}footer{color:#8799b1;font-size:13px;line-height:1.6;margin-top:30px}@media(max-width:600px){.grid{grid-template-columns:1fr}.card{padding:18px}}
   </style>
 </head>
 <body><main>
@@ -18,7 +18,7 @@
   <section class="card"><h2>目标硬件</h2><div class="grid">
     <div class="stat"><b>芯片与存储</b><span>ESP32-S3 WROOM-1 · 16 MB Flash · 8 MB PSRAM</span></div>
     <div class="stat"><b>外设</b><span>240×320 触屏 · GC0308 摄像头 · ES8311 音频</span></div>
-  </div><p>仅支持这块板。USB 口可能通过 CH343 或原生 USB 枚举；请选择连接开发板的串口。建议使用 Chrome 或 Edge 的 HTTPS 页面，或本机 localhost。</p></section>
+  </div><p>仅支持这块板。板上 Type-C 通过 USB HUB 同时连接 CH340K 的 UART0 串口和 ESP32-S3 原生 USB。连接时优先选择 CH340K/USB Serial；若仅有 USB JTAG/serial debug unit，可尝试下方手动下载模式。</p></section>
 
   <section class="card"><div class="step"><span class="num">1</span><h2>准备固件</h2></div>
     <p>下载上游 v2.5.2 的 <strong>lckfb-lichuang-dev</strong> 包，解压后选择其中的 <code>merged-binary.bin</code>。自行编译的合并镜像也可选择；刷写前会检查芯片和分区。</p>
@@ -30,9 +30,11 @@
 
   <section class="card"><div class="step"><span class="num">2</span><h2>连接与备份</h2></div>
     <p>先连接串口，核对芯片、Flash 容量，并读取当前分区表。备份前 64 KB（含分区表及常见 NVS 区域）后才能刷写。备份文件仅保存在你的电脑上，可能包含 Wi‑Fi 等敏感配置，请妥善保管。</p>
+    <label for="resetMode">连接方式：</label>
+    <select id="resetMode" aria-label="连接方式"><option value="default_reset">自动进入下载模式（先选 CH340K）</option><option value="no_reset">设备已手动进入下载模式</option></select>
     <div class="row"><button id="connect">连接开发板</button><button id="backup" class="secondary" disabled>下载配置备份</button><button id="disconnect" class="secondary" disabled>断开</button></div>
     <p id="deviceInfo">未连接。</p>
-    <details><summary>串口未出现或连接失败？</summary><p>在电脑上的 Chrome 或 Edge 中直接打开本页 HTTPS 地址。使用能传数据的 USB 线，关闭占用串口的串口监视器与其他烧录页；若串口已出现但握手失败，尝试按住开发板 BOOT 键，点一下 RESET 后松开 BOOT，再重新连接。也可以参考<a href="https://fw.gtai-tech.com/" target="_blank" rel="noopener">光钛在线烧录工具的连接说明</a>。</p></details>
+    <details><summary>串口未出现或连接失败？</summary><p>串口列表只显示板上 CH340K（WCH）或乐鑫原生 USB，Mac 的 Bluetooth-Incoming-Port 不是开发板。若列表为空，请检查板子是否通电、换一根能传数据的 USB 线，直接插电脑 USB 口，并关闭占用串口的终端与其他烧录页。若能选到 USB JTAG/serial debug unit，但自动连接仍显示同步失败：按住板上的用户/BOOT 键，点一下 RESET，松开用户/BOOT 键，再将上方连接方式改为“设备已手动进入下载模式”并重试。原厂文档说明 UART0 的 CH340K 支持自动下载；也可参考<a href="https://wiki.lckfb.com/zh-hans/szpi-esp32s3/beginner/introduction.html" target="_blank" rel="noopener">立创板卡说明</a>。</p></details>
     <label class="check"><input id="savedBackup" type="checkbox" disabled>我已确认备份文件保存在本机。</label>
   </section>
 
@@ -41,6 +43,7 @@
     <label class="check"><input id="boardConfirmed" type="checkbox">我确认设备是图片所示的立创实战派 N16R8 板，固件对应这块板。</label>
     <label class="check" id="fullLabel" hidden><input id="allowFull" type="checkbox">当前分区表不同，无法安全保留 NVS；我同意全量刷写后可能需要重新配网，并已保存备份。</label>
     <button id="flash" disabled>开始 USB 烧录</button>
+    <p id="requirements" role="status">待完成：连接开发板、选择固件、下载并确认备份、确认板型。</p>
     <progress id="progress" max="100" value="0"></progress><div id="progressText">等待开始</div>
   </section>
 
@@ -56,8 +59,8 @@ import {ESPLoader, Transport} from './vendor/esptool-js.bundle.js';
   const FLASH_BYTES = 16 * 1024 * 1024;
   const PART_OFFSET = 0x8000, PART_SIZE = 0x1000, NVS_START = 0x9000, NVS_END = 0xd000;
   const $ = id => document.getElementById(id);
-  const ui = Object.fromEntries(['compat','firmware','fileInfo','custom','connect','backup','disconnect','deviceInfo','savedBackup','modeInfo','boardConfirmed','fullLabel','allowFull','flash','progress','progressText','log'].map(id => [id,$(id)]));
-  let image = null, official = false, transport = null, loader = null, tableMatches = false, preflightDone = false, backupDone = false, busy = false;
+  const ui = Object.fromEntries(['compat','firmware','fileInfo','custom','resetMode','connect','backup','disconnect','deviceInfo','savedBackup','modeInfo','boardConfirmed','fullLabel','allowFull','flash','requirements','progress','progressText','log'].map(id => [id,$(id)]));
+  let image = null, official = false, transport = null, loader = null, tableMatches = false, partitionRead = false, preflightDone = false, backupDone = false, busy = false, selectedPortInfo = null;
   const append = message => { ui.log.textContent += `${new Date().toLocaleTimeString()}  ${message}\n`; ui.log.scrollTop = ui.log.scrollHeight; };
   const fail = error => { append(`错误：${error?.message || String(error)}`); ui.progressText.textContent = `失败：${error?.message || String(error)}`; };
   const same = (a,b) => a.length === b.length && a.every((x,i) => x === b[i]);
@@ -76,15 +79,27 @@ import {ESPLoader, Transport} from './vendor/esptool-js.bundle.js';
   const setBusy = value => { busy=value; updateButtons(); };
   function updateButtons() {
     ui.connect.disabled = busy || !!loader;
-    ui.backup.disabled = busy || !loader || !preflightDone;
+    ui.resetMode.disabled = busy || !!loader;
+    ui.backup.disabled = busy || !loader || !partitionRead;
     ui.disconnect.disabled = busy || !loader;
     ui.savedBackup.disabled = !backupDone;
     ui.flash.disabled = busy || !loader || !image || !preflightDone || !backupDone || !ui.savedBackup.checked || !ui.boardConfirmed.checked || (!official && !ui.custom.checked) || (!tableMatches && !ui.allowFull.checked);
     ui.fullLabel.hidden = !preflightDone || tableMatches;
+    const remaining = [];
+    if (!loader) remaining.push('连接开发板并读取分区表');
+    else if (!partitionRead) remaining.push('读取分区表');
+    if (!image) remaining.push('选择并校验合并固件 .bin');
+    else if (!preflightDone) remaining.push('比较设备与固件分区表');
+    if (!backupDone) remaining.push('下载前 64 KB 备份');
+    else if (!ui.savedBackup.checked) remaining.push('确认备份文件已保存在本机');
+    if (!ui.boardConfirmed.checked) remaining.push('确认板型');
+    if (image && !official && !ui.custom.checked) remaining.push('确认自编译镜像');
+    if (preflightDone && !tableMatches && !ui.allowFull.checked) remaining.push('确认分区不同后的全量刷写');
+    ui.requirements.textContent = remaining.length ? `待完成：${remaining.join('、')}。` : '准备就绪，可以开始 USB 烧录。';
   }
   async function hash(bytes) { return hex(new Uint8Array(await crypto.subtle.digest('SHA-256', bytes))); }
   async function prepareFile() {
-    image = null; official = false; preflightDone = false; backupDone = false; ui.savedBackup.checked = false; ui.allowFull.checked = false; ui.progress.value=0; ui.fileInfo.textContent='正在校验镜像…'; updateButtons();
+    image = null; official = false; preflightDone = false; ui.allowFull.checked = false; ui.progress.value=0; ui.fileInfo.textContent='正在校验镜像…'; updateButtons();
     const file = ui.firmware.files?.[0]; if (!file) { ui.fileInfo.textContent='尚未选择文件。'; return; }
     try {
       const data = new Uint8Array(await file.arrayBuffer());
@@ -102,9 +117,16 @@ import {ESPLoader, Transport} from './vendor/esptool-js.bundle.js';
     updateButtons();
   }
   async function checkPartitions() {
-    if (!loader || !image) return;
+    if (!loader) return;
     preflightDone=false; updateButtons();
     const current = await loader.readFlash(PART_OFFSET, PART_SIZE);
+    partitionRead=true;
+    if (!image) {
+      ui.modeInfo.textContent='已读取设备分区表。现在可以下载配置备份；选择固件后会比较两份分区表。';
+      append('已读取设备分区表，可以下载配置备份。');
+      updateButtons();
+      return;
+    }
     const proposed = image.subarray(PART_OFFSET, PART_OFFSET + PART_SIZE);
     tableMatches = same(current, proposed);
     preflightDone=true;
@@ -119,25 +141,35 @@ import {ESPLoader, Transport} from './vendor/esptool-js.bundle.js';
       const error = new Error('当前浏览器没有 Web Serial 串口权限。请在电脑 Chrome/Edge 中直接打开本页 HTTPS 地址，然后重试。');
       ui.deviceInfo.textContent = error.message; fail(error); return;
     }
+    const resetMode = ui.resetMode.value;
     setBusy(true);
     try {
-      const port = await navigator.serial.requestPort();
+      // This board exposes a WCH CH340K UART and/or Espressif native USB.
+      // Filtering avoids selecting macOS Bluetooth-Incoming-Port by mistake.
+      const port = await navigator.serial.requestPort({filters:[{usbVendorId:0x1a86},{usbVendorId:0x303a}]});
+      selectedPortInfo = port.getInfo?.() || {};
+      const vid = selectedPortInfo.usbVendorId;
+      const pid = selectedPortInfo.usbProductId;
+      append(`已选串口 VID ${vid == null ? '未知' : `0x${vid.toString(16).padStart(4,'0')}`} / PID ${pid == null ? '未知' : `0x${pid.toString(16).padStart(4,'0')}`}`);
       transport = new esptool.Transport(port, true);
       loader = new esptool.ESPLoader({transport, baudrate:460800, terminal:{clean(){},writeLine:append,write:append}});
-      const chip = await loader.main();
+      const chip = await loader.main(resetMode);
       if (!/ESP32-S3/i.test(chip)) throw new Error(`检测到 ${chip}，需要 ESP32-S3。`);
       const flashSize = await loader.detectFlashSize();
       if (flashSize !== '16MB') throw new Error(`检测到 Flash ${flashSize || '未知'}，目标板应为 16MB。`);
       ui.deviceInfo.textContent = `${chip} · Flash ${flashSize} · 串口已连接`;
       append(`连接成功：${chip}，Flash ${flashSize}`);
-      if (image) await checkPartitions();
+      await checkPartitions();
     } catch(error) {
-      const detail = error?.name === 'SecurityError' ? '浏览器阻止了串口权限。请不要在内置预览页打开，并检查浏览器的站点权限。'
-        : error?.name === 'NotFoundError' ? '没有选中串口。请检查 USB 数据线和系统串口列表后重试。'
+      const nativeUsb = selectedPortInfo?.usbVendorId === 0x303a;
+      const detail = error?.message === 'Failed to connect with the device' ?
+        `ESP32-S3 未回应下载握手。${nativeUsb ? '当前选到乐鑫原生 USB；优先改选 CH340K/USB Serial。' : '请核对所选串口确实连接这块板。'} 若仍失败，按住用户/BOOT，点 RESET 后松开，选择“设备已手动进入下载模式”再连接。`
+        : error?.name === 'SecurityError' ? '浏览器阻止了串口权限。请不要在内置预览页打开，并检查浏览器的站点权限。'
+        : error?.name === 'NotFoundError' ? '没有选中开发板 USB 串口。Bluetooth-Incoming-Port 不是 ESP32-S3；请接好 USB 数据线，确认板子通电后重试。'
         : error?.message || String(error);
       ui.deviceInfo.textContent = `连接失败：${detail}`;
       fail(new Error(detail));
-      if (transport) { try { await transport.disconnect(); } catch {} } loader=null; transport=null;
+      if (transport) { try { await transport.disconnect(); } catch {} } loader=null; transport=null; selectedPortInfo=null; partitionRead=false; preflightDone=false;
     }
     finally { setBusy(false); }
   }
@@ -170,7 +202,7 @@ import {ESPLoader, Transport} from './vendor/esptool-js.bundle.js';
     } catch(error) { fail(error); }
     finally { setBusy(false); }
   }
-  async function disconnect() { setBusy(true); try { await transport?.disconnect(); } catch(error) { fail(error); } loader=null;transport=null;preflightDone=false;backupDone=false;ui.savedBackup.checked=false;ui.deviceInfo.textContent='未连接。';setBusy(false); }
+  async function disconnect() { setBusy(true); try { await transport?.disconnect(); } catch(error) { fail(error); } loader=null;transport=null;selectedPortInfo=null;partitionRead=false;preflightDone=false;backupDone=false;ui.savedBackup.checked=false;ui.deviceInfo.textContent='未连接。';setBusy(false); }
   ui.firmware.addEventListener('change',prepareFile); ui.custom.addEventListener('change',updateButtons); ui.savedBackup.addEventListener('change',updateButtons); ui.boardConfirmed.addEventListener('change',updateButtons); ui.allowFull.addEventListener('change',updateButtons);
   ui.connect.addEventListener('click',connect);ui.backup.addEventListener('click',backup);ui.flash.addEventListener('click',flash);ui.disconnect.addEventListener('click',disconnect);
   showCompatibility();
